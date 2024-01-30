@@ -5,6 +5,7 @@
 use super::fli;
 use super::prelude::*;
 use std::collections::HashMap;
+use std::convert::TryInto;
 
 /// A key in a prolog dictionary.
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
