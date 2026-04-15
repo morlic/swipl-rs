@@ -76,7 +76,7 @@ pub(crate) unsafe fn with_cleared_exception<R>(f: impl FnOnce() -> R) -> R {
     let error_term_ref = pl_default_exception();
     if error_term_ref != 0 {
         let backup_term_ref = PL_new_term_ref();
-        assert!(PL_unify(backup_term_ref, error_term_ref));
+        assert!(PL_unify(backup_term_ref, error_term_ref) != 0);
         PL_clear_exception();
         let result = f();
         PL_raise_exception(backup_term_ref);
@@ -117,7 +117,7 @@ impl<'a> ExceptionTerm<'a> {
     ) -> R {
         ctx.assert_activated();
         let backup_term_ref = PL_new_term_ref();
-        assert!(PL_unify(backup_term_ref, self.0.term_ptr()));
+        assert!(PL_unify(backup_term_ref, self.0.term_ptr()) != 0);
         let backup_term = Term::new(backup_term_ref, ctx.as_term_origin());
         PL_clear_exception();
 
@@ -958,7 +958,7 @@ impl<'a, T: QueryableContextType> Context<'a, T> {
 
         let mut size = 0;
         if unsafe {
-            !PL_get_compound_name_arity(compound.term_ptr(), std::ptr::null_mut(), &mut size)
+            PL_get_compound_name_arity(compound.term_ptr(), std::ptr::null_mut(), &mut size) == 0
         } {
             return Err(PrologError::Failure);
         }
@@ -969,7 +969,7 @@ impl<'a, T: QueryableContextType> Context<'a, T> {
         let terms: [Term; N] = self.new_term_refs();
         for (i, term) in terms.iter().enumerate() {
             unsafe {
-                assert!(PL_get_arg((i + 1) as i32, compound.term_ptr(), term.term_ptr()));
+                assert!(PL_get_arg((i + 1) as i32, compound.term_ptr(), term.term_ptr()) != 0);
             }
         }
 
@@ -987,7 +987,7 @@ impl<'a, T: QueryableContextType> Context<'a, T> {
 
         let mut size = 0;
         if unsafe {
-            !PL_get_compound_name_arity(compound.term_ptr(), std::ptr::null_mut(), &mut size)
+            PL_get_compound_name_arity(compound.term_ptr(), std::ptr::null_mut(), &mut size) == 0
         } {
             return Err(PrologError::Failure);
         }
@@ -995,7 +995,7 @@ impl<'a, T: QueryableContextType> Context<'a, T> {
         let terms = self.new_term_refs_vec(size as usize);
         for (i, term) in terms.iter().enumerate() {
             unsafe {
-                assert!(PL_get_arg((i + 1) as i32, compound.term_ptr(), term.term_ptr()));
+                assert!(PL_get_arg((i + 1) as i32, compound.term_ptr(), term.term_ptr()) != 0);
             }
         }
 
@@ -1018,7 +1018,7 @@ impl<'a, T: QueryableContextType> Context<'a, T> {
 
         let mut size = 0;
         if unsafe {
-            !PL_get_compound_name_arity(compound.term_ptr(), std::ptr::null_mut(), &mut size)
+            PL_get_compound_name_arity(compound.term_ptr(), std::ptr::null_mut(), &mut size) == 0
         } {
             return Err(PrologError::Failure);
         }
@@ -1029,7 +1029,7 @@ impl<'a, T: QueryableContextType> Context<'a, T> {
         let terms = self.new_term_refs_vec(count);
         for (i, term) in terms.iter().enumerate() {
             unsafe {
-                assert!(PL_get_arg((i + 1) as i32, compound.term_ptr(), term.term_ptr()));
+                assert!(PL_get_arg((i + 1) as i32, compound.term_ptr(), term.term_ptr()) != 0);
             }
         }
 
@@ -1077,7 +1077,7 @@ impl<'a, T: QueryableContextType> Context<'a, T> {
     ) -> Result<(Term<'b>, Term<'b>), PrologError> {
         let [head, tail] = self.new_term_refs();
         match unsafe { PL_unify_list(term.term_ptr(), head.term_ptr(), tail.term_ptr()) } {
-            false => {
+            0 => {
                 unsafe {
                     head.reset();
                 }
@@ -1115,7 +1115,7 @@ impl<'a, 'b, CT: QueryableContextType> Iterator for TermListIterator<'a, 'b, CT>
         let success =
             unsafe { PL_get_list(self.cur.term_ptr(), head.term_ptr(), tail.term_ptr()) };
 
-        if success {
+        if success != 0 {
             self.cur = tail;
             Some(head)
         } else {

@@ -72,7 +72,7 @@ term_getable! {
     // origin.
     (WritablePrologStream<'a>, term) => {
         let mut stream: *mut fli::IOSTREAM = std::ptr::null_mut();
-        if unsafe { fli::PL_get_stream(term.term_ptr(), &mut stream, fli::SH_OUTPUT|fli::SH_UNLOCKED|fli::SH_NOPAIR) } {
+        if unsafe { fli::PL_get_stream(term.term_ptr(), &mut stream, fli::SH_OUTPUT|fli::SH_UNLOCKED|fli::SH_NOPAIR) } != 0 {
             Some(unsafe {WritablePrologStream::new(stream) })
         }
         else {
@@ -273,7 +273,7 @@ term_getable! {
     // origin.
     (ReadablePrologStream<'a>, term) => {
         let mut stream: *mut fli::IOSTREAM = std::ptr::null_mut();
-        if unsafe { fli::PL_get_stream(term.term_ptr(), &mut stream, fli::SH_INPUT|fli::SH_UNLOCKED|fli::SH_NOPAIR) } {
+        if unsafe { fli::PL_get_stream(term.term_ptr(), &mut stream, fli::SH_INPUT|fli::SH_UNLOCKED|fli::SH_NOPAIR) } != 0 {
             Some(unsafe {ReadablePrologStream::new(stream) })
         }
         else {

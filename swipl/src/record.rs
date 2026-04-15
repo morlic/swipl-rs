@@ -33,7 +33,7 @@ impl Record {
     /// Copy the recorded term into the given term reference.
     pub fn recorded(&self, term: &Term) -> PrologResult<()> {
         term.assert_term_handling_possible();
-        unsafe { into_prolog_result(fli::PL_recorded(self.record, term.term_ptr())) }
+        unsafe { into_prolog_result(fli::PL_recorded(self.record, term.term_ptr()) != 0) }
     }
 }
 
@@ -77,7 +77,7 @@ unifiable! {
             let result = fli::PL_unify(term.term_ptr(), extra_term);
             fli::PL_reset_term_refs(extra_term);
 
-            result
+            result != 0
         }
     }
 }

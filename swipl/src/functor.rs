@@ -105,7 +105,7 @@ unifiable! {
     (self: Functor, term) => {
         let result = unsafe {PL_unify_compound(term.term_ptr(), self.functor)};
 
-        result
+        result != 0
     }
 }
 
@@ -114,7 +114,7 @@ term_getable! {
         let mut functor = 0;
         let result = unsafe { PL_get_functor(term.term_ptr(), &mut functor) };
 
-        if !result {
+        if result == 0 {
             None
         }
         else {

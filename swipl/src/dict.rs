@@ -252,7 +252,7 @@ unsafe impl<'a> Unifiable for DictBuilder<'a> {
             dict_term.reset();
         };
 
-        result
+        result != 0
     }
 }
 
@@ -276,7 +276,7 @@ impl<'a> Term<'a> {
 
         let result = if unsafe { fli::pl_default_exception() != 0 } {
             Err(PrologError::Exception)
-        } else if get_result {
+        } else if get_result != 0 {
             term.get()
         } else {
             Err(PrologError::Failure)
@@ -309,7 +309,7 @@ impl<'a> Term<'a> {
 
         if unsafe { fli::pl_default_exception() != 0 } {
             Err(PrologError::Exception)
-        } else if result {
+        } else if result != 0 {
             Ok(())
         } else {
             Err(PrologError::Failure)
@@ -329,7 +329,7 @@ impl<'a> Term<'a> {
     pub fn get_dict_tag(&self) -> PrologResult<Option<Atom>> {
         self.assert_term_handling_possible();
 
-        if unsafe { !fli::PL_is_dict(self.term_ptr()) } {
+        if unsafe { fli::PL_is_dict(self.term_ptr()) == 0 } {
             Err(PrologError::Failure)
         } else if let Some(atom) = attempt_opt(self.get_arg(1))? {
             Ok(Some(atom))
@@ -352,7 +352,7 @@ impl<'a> Term<'a> {
             panic!("terms being unified are not part of the same engine");
         }
 
-        if unsafe { !fli::PL_is_dict(self.term_ptr()) } {
+        if unsafe { fli::PL_is_dict(self.term_ptr()) == 0 } {
             Err(PrologError::Failure)
         } else {
             self.unify_arg(1, term)
@@ -362,7 +362,7 @@ impl<'a> Term<'a> {
     /// Returns true if this term reference holds a dictionary.
     pub fn is_dict(&self) -> bool {
         self.assert_term_handling_possible();
-        unsafe { fli::PL_is_dict(self.term_ptr()) }
+        unsafe { fli::PL_is_dict(self.term_ptr()) != 0 }
     }
 }
 

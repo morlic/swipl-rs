@@ -346,7 +346,7 @@ pub unsafe fn unify_with_arc<T>(
         blob_definition as *const fli::PL_blob_t as *mut fli::PL_blob_t,
     );
 
-    result
+    result != 0
 }
 
 /// Unify the term with the given Cloneable, using the given blob
@@ -372,7 +372,7 @@ pub unsafe fn unify_with_cloneable<T: Clone + Sized + Unpin>(
         blob_definition as *const fli::PL_blob_t as *mut fli::PL_blob_t,
     );
 
-    if result {
+    if result != 0 {
         std::mem::forget(cloned);
         true
     } else {
@@ -395,7 +395,7 @@ pub unsafe fn get_arc_from_term<T>(
     term.assert_term_handling_possible();
 
     let mut blob_type = std::ptr::null_mut();
-    if !fli::PL_is_blob(term.term_ptr(), &mut blob_type)
+    if fli::PL_is_blob(term.term_ptr(), &mut blob_type) == 0
         || blob_definition as *const fli::PL_blob_t != blob_type
     {
         return None;
@@ -409,7 +409,7 @@ pub unsafe fn get_arc_from_term<T>(
         std::ptr::null_mut(),
     );
 
-    if !result {
+    if result == 0 {
         None
     } else {
         Arc::increment_strong_count(data);
@@ -433,7 +433,7 @@ pub unsafe fn get_cloned_from_term<T: Clone + Sized + Unpin>(
     term.assert_term_handling_possible();
 
     let mut blob_type = std::ptr::null_mut();
-    if !fli::PL_is_blob(term.term_ptr(), &mut blob_type)
+    if fli::PL_is_blob(term.term_ptr(), &mut blob_type) == 0
         || blob_definition as *const fli::PL_blob_t != blob_type
     {
         return None;
@@ -447,7 +447,7 @@ pub unsafe fn get_cloned_from_term<T: Clone + Sized + Unpin>(
         std::ptr::null_mut(),
     );
 
-    if !result {
+    if result == 0 {
         None
     } else {
         let cloned = (*data).clone();

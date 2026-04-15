@@ -41,7 +41,7 @@ term_getable! {
                                                  flags) };
 
 
-        if !result {
+        if result == 0 {
             None
         }
         else {

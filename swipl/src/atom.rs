@@ -148,7 +148,7 @@ unifiable! {
     (self:Atom, term) => {
         let result = unsafe { PL_unify_atom(term.term_ptr(), self.atom) };
 
-        result
+        result != 0
     }
 }
 
@@ -169,7 +169,7 @@ where
         return Err(PrologError::Exception);
     }
 
-    let arg = if !result {
+    let arg = if result == 0 {
         None
     } else {
         let atom = unsafe { Atom::wrap(atom) };
@@ -352,7 +352,7 @@ unifiable! {
             )
         };
 
-        result
+        result != 0
     }
 }
 
@@ -383,7 +383,7 @@ where
         return Err(PrologError::Exception);
     }
 
-    let arg = if !result {
+    let arg = if result == 0 {
         None
     } else {
         let swipl_string_ref = unsafe { std::slice::from_raw_parts(ptr as *const u8, len) };
